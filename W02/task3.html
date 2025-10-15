@@ -1,0 +1,58 @@
+<html>
+<head>
+<title>W02: Task 3</title>
+</head>
+<body>
+
+<h3>Area of Triangle</h3>
+
+<p>v0: <input id="x0" type="number"> <input id="y0" type="number"> <input id="z0" type="number"></p>
+<p>v1: <input id="x1" type="number"> <input id="y1" type="number"> <input id="z1" type="number"></p>
+<p>v2: <input id="x2" type="number"> <input id="y2" type="number"> <input id="z2" type="number"></p>
+
+<input type="button" id="calc" value="Compute Area">
+<p id="output"></p>
+
+<script src="vec3.js"></script>
+<script>
+function AreaOfTriangle(v0, v1, v2) {
+  var ux = v1.x - v0.x;
+  var uy = v1.y - v0.y;
+  var uz = v1.z - v0.z;
+
+  var vx = v2.x - v0.x;
+  var vy = v2.y - v0.y;
+  var vz = v2.z - v0.z;
+
+  var cx = uy * vz - uz * vy;
+  var cy = uz * vx - ux * vz;
+  var cz = ux * vy - uy * vx;
+
+  var area = 0.5 * Math.sqrt(cx*cx + cy*cy + cz*cz);
+  return area;
+}
+
+document.getElementById("calc").addEventListener("click", function() {
+  var x0 = Number(document.getElementById("x0").value);
+  var y0 = Number(document.getElementById("y0").value);
+  var z0 = Number(document.getElementById("z0").value);
+
+  var x1 = Number(document.getElementById("x1").value);
+  var y1 = Number(document.getElementById("y1").value);
+  var z1 = Number(document.getElementById("z1").value);
+
+  var x2 = Number(document.getElementById("x2").value);
+  var y2 = Number(document.getElementById("y2").value);
+  var z2 = Number(document.getElementById("z2").value);
+
+  var v0 = new Vec3(x0, y0, z0);
+  var v1 = new Vec3(x1, y1, z1);
+  var v2 = new Vec3(x2, y2, z2);
+
+  var S = AreaOfTriangle(v0, v1, v2);
+  document.getElementById("output").innerHTML = "Area = " + S;
+});
+</script>
+
+</body>
+</html>
