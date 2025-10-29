@@ -1,0 +1,6 @@
+x,y,r,color,opacity,label
+20,30,12,red,0.9,A
+100,50,20,green,0.7,B
+70,100,15,blue,0.6,C
+180,70,18,orange,0.8,D
+250,40,10,purple,1.0,E

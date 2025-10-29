@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>W04 Task 1 – Reading Data with Options</title>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+</head>
+<body>
+<h2 style="font-family:sans-serif;">W04 Task 1 : Colored Circles (with Options)</h2>
+
+<script>
+// SVG領域
+const width = 400, height = 250;
+const svg = d3.select("body")
+  .append("svg")
+  .attr("width", width)
+  .attr("height", height)
+  .style("background-color", "#f8f8f8");
+
+// CSVを読み込み
+d3.csv("https://matsuzakikinari.github.io/InfoVis2025/W04/w04_task1.csv").then(data => {
+  data.forEach(d => {
+    d.x = +d.x; d.y = +d.y; d.r = +d.r; d.opacity = +d.opacity;
+  });
+
+  // 円を描画
+  svg.selectAll("circle")
+     .data(data)
+     .enter()
+     .append("circle")
+     .attr("cx", d => d.x)
+     .attr("cy", d => d.y)
+     .attr("r",  d => d.r)
+     .style("fill", d => d.color)
+     .style("opacity", d => d.opacity || 0.8)
+     .style("stroke", "#333")
+     .style("stroke-width", 1);
+
+  // ラベル
+  svg.selectAll("text")
+     .data(data)
+     .enter()
+     .append("text")
+     .attr("x", d => d.x + d.r + 5)
+     .attr("y", d => d.y + 5)
+     .text((d,i)=>d.label || `Point ${i+1}`)
+     .style("font-size", "12px")
+     .style("font-family", "sans-serif");
+});
+</script>
+</body>
+</html>
