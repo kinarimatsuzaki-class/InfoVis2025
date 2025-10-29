@@ -18,7 +18,7 @@ const svg = d3.select("body")
   .style("background-color", "#f8f8f8");
 
 // CSVを読み込み
-d3.csv("https://matsuzakikinari.github.io/InfoVis2025/W04/w04_task1.csv").then(data => {
+d3.csv("https://kinarimatsuzaki-class.github.io/InfoVis2025/W04/w04_task1.csv").then(data => {
   data.forEach(d => {
     d.x = +d.x; d.y = +d.y; d.r = +d.r; d.opacity = +d.opacity;
   });
