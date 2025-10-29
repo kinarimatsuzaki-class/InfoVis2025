@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>W04 Task 2 – Bars with Labels</title>
+  <script src="https://d3js.org/d3.v6.min.js"></script>
+  <style>
+    body { font-family: sans-serif; }
+    .label { font-size: 12px; dominant-baseline: middle; }
+    .value { font-size: 12px; dominant-baseline: middle; }
+  </style>
+</head>
+<body>
+<h2>W04 Task 2 : Labeled Horizontal Bars</h2>
+
+<script>
+// レイアウト
+const W = 500, H = 220;
+const pad = { top: 10, right: 20, bottom: 10, left: 80 }; // 左にラベル領域
+const barH = 24, gap = 8;
+
+// SVG
+const svg = d3.select("body").append("svg")
+  .attr("width", W).attr("height", H)
+  .style("background", "#f8f8f8");
+
+// CSV読み込み（同じW04内に置く想定。外部URLでもOK）
+d3.csv("w04_task2.csv").then(data => {
+  data.forEach(d => { d.value = +d.value; });
+
+  // xスケール（値→幅）
+  const maxV = d3.max(data, d => d.value) || 1;
+  const x = d3.scaleLinear()
+    .domain([0, maxV])
+    .range([0, W - pad.left - pad.right]);
+
+  // 各行のグループ
+  const g = svg.append("g").attr("transform", `translate(${pad.left},${pad.top})`);
+
+  // バー
+  g.selectAll("rect").data(data).enter().append("rect")
+    .attr("x", 0)
+    .attr("y", (_, i) => i * (barH + gap))
+    .attr("width", d => x(d.value))
+    .attr("height", barH)
+    .attr("rx", 4)
+    .style("fill", d => d.color || "steelblue");
+
+  // 左ラベル
+  svg.append("g").attr("transform", `translate(${pad.left - 8},${pad.top})`)
+    .selectAll("text").data(data).enter().append("text")
+    .attr("class", "label")
+    .attr("x", 0)
+    .attr("y", (_, i) => i * (barH + gap) + barH / 2)
+    .attr("text-anchor", "end")
+    .text(d => d.label);
+
+  // 値ラベル（バー末端）
+  g.selectAll(".value").data(data).enter().append("text")
+    .attr("class", "value")
+    .attr("x", d => x(d.value) + 4)
+    .attr("y", (_, i) => i * (barH + gap) + barH / 2)
+    .text(d => d.value);
+
+  // SVGの高さをデータ行数に合わせて自動調整
+  const needH = pad.top + pad.bottom + data.length * (barH + gap) - gap;
+  svg.attr("height", Math.max(H, needH));
+}).catch(err => {
+  console.error("CSV load failed:", err);
+  d3.select("body").append("p").text("CSVの読み込みに失敗しました。");
+});
+</script>
+</body>
+</html>
