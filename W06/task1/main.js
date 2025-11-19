@@ -90,7 +90,7 @@ class ScatterPlot {
 }
 
 
-d3.csv('../W04/data.csv')
+d3.csv('../../W04/data.csv')
     .then(data => {
         data.forEach(d => {
             d.x = +d.x;
