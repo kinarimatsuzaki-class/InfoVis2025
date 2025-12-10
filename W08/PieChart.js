@@ -16,10 +16,11 @@ class PieChart {
   
       this.radius = Math.min(c.width, c.height) / 2;
   
-      this.pie = d3.pie().value(d => d.value);
+      this.pie = d3.pie()
+        .value(d => d.value);
   
       this.arc = d3.arc()
-        .innerRadius(0)              // ここを radius/2 にするとドーナツになる
+        .innerRadius(this.radius / 2)            // ★ ここを this.radius/2 にするとドーナツ
         .outerRadius(this.radius);
   
       this.color = d3.scaleOrdinal(d3.schemeCategory10);
@@ -31,7 +32,8 @@ class PieChart {
     }
   
     render() {
-      const arcs = this.svg.selectAll("path")
+      // 円弧
+      this.svg.selectAll("path")
         .data(this.pie(this.data))
         .join("path")
         .attr("d", this.arc)
@@ -39,6 +41,7 @@ class PieChart {
         .attr("stroke", "white")
         .style("stroke-width", "2px");
   
+      // ラベル
       this.svg.selectAll("text")
         .data(this.pie(this.data))
         .join("text")

@@ -21,9 +21,16 @@ class LineChart {
       this.xscale = d3.scaleLinear().range([0, this.w]);
       this.yscale = d3.scaleLinear().range([this.h, 0]);
   
+      // 線
       this.line = d3.line()
         .x(d => this.xscale(d.x))
         .y(d => this.yscale(d.y));
+  
+      // ★ 追加：エリア
+      this.area = d3.area()
+        .x(d => this.xscale(d.x))
+        .y1(d => this.yscale(d.y))
+        .y0(this.h);   // x 軸まで塗る
   
       this.xaxis = this.chart.append("g")
         .attr("transform", `translate(0, ${this.h})`);
@@ -41,21 +48,31 @@ class LineChart {
     render() {
       const chart = this.chart;
   
+      // ★ 先にエリアを描画
+      chart.selectAll("path.area")
+        .data([this.data])
+        .join("path")
+        .attr("class", "area")
+        .attr("d", this.area)
+        .attr("fill", "rgba(255,0,0,0.2)");
+  
+      // 線
       chart.selectAll("path.line")
         .data([this.data])
         .join("path")
         .attr("class", "line")
         .attr("d", this.line)
         .attr("fill", "none")
-        .attr("stroke", "black");
+        .attr("stroke", "red");
   
+      // ドット
       chart.selectAll("circle")
         .data(this.data)
         .join("circle")
         .attr("cx", d => this.xscale(d.x))
         .attr("cy", d => this.yscale(d.y))
         .attr("r", 4)
-        .attr("fill", "steelblue");
+        .attr("fill", "black");
   
       this.xaxis.call(d3.axisBottom(this.xscale));
       this.yaxis.call(d3.axisLeft(this.yscale));
