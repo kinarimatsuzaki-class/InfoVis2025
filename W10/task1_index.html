@@ -1,0 +1,41 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <title>W10: Task1 (BarChart)</title>
+    <style>
+      body { font-family: system-ui; }
+      .controls { display:flex; gap:10px; align-items:center; margin: 10px 0; }
+      svg { border: 1px solid #eee; }
+    </style>
+  </head>
+  <body>
+    <h2>Task1: BarChart (CSV + Sort + Reverse + Animation + Option)</h2>
+
+    <div class="controls">
+      <button id="reverseBtn" type="button">Reverse</button>
+
+      <label>
+        Order:
+        <select id="orderSel">
+          <option value="desc">Desc</option>
+          <option value="asc">Asc</option>
+        </select>
+      </label>
+
+      <label>
+        Color (Option):
+        <select id="colorSel">
+          <option value="steelblue">Blue</option>
+          <option value="tomato">Red</option>
+          <option value="seagreen">Green</option>
+        </select>
+      </label>
+    </div>
+
+    <svg id="drawing_region" width="420" height="260"></svg>
+
+    <script src="https://d3js.org/d3.v6.min.js"></script>
+    <script src="task1_main.js"></script>
+  </body>
+</html>
