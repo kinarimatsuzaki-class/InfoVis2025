@@ -106,12 +106,15 @@
             </section>
         </main>
 
-        <!-- Comparison Chart (appears when 2+ selected) -->
-        <section class="comparison-section" id="comparison-section" style="display: none;">
+        <!-- Comparison Chart (always visible, shows placeholder when < 2 selected) -->
+        <section class="comparison-section" id="comparison-section">
             <div class="viz-panel comparison-panel">
                 <div class="panel-header">
                     <h2>Side-by-Side Comparison</h2>
-                    <p class="panel-description" id="comparison-description">Comparing selected countries</p>
+                    <p class="panel-description" id="comparison-description">Select 2+ countries to compare</p>
+                </div>
+                <div class="comparison-placeholder" id="comparison-placeholder">
+                    <p>📊 Select at least 2 countries from the scatter plot to compare their medal distributions</p>
                 </div>
                 <div class="chart-container" id="comparison-chart"></div>
             </div>

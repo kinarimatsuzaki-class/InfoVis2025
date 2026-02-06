@@ -565,11 +565,32 @@ select option {
 }
 
 .comparison-panel {
-    min-height: 400px;
+    min-height: 200px;
+    /* Smaller when showing placeholder */
+    position: relative;
 }
 
 .comparison-panel .chart-container {
     min-height: 300px;
+}
+
+/* Comparison Placeholder */
+.comparison-placeholder {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: 150px;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    text-align: center;
+    background: rgba(0, 0, 0, 0.02);
+    border-radius: var(--radius-sm);
+    border: 2px dashed rgba(0, 0, 0, 0.1);
+}
+
+.comparison-placeholder p {
+    margin: 0;
+    padding: var(--spacing-md);
 }
 
 @media (max-width: 1200px) {

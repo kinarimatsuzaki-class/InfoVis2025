@@ -623,14 +623,26 @@ function initComparisonChart() {
 }
 
 function updateComparisonChart() {
-    const section = document.getElementById('comparison-section');
+    const placeholder = document.getElementById('comparison-placeholder');
+    const chartContainer = document.getElementById('comparison-chart');
+    const description = document.getElementById('comparison-description');
 
     if (state.selectedCountries.length < 2) {
-        section.style.display = 'none';
+        // Show placeholder, hide chart
+        if (placeholder) placeholder.style.display = 'flex';
+        if (chartContainer) chartContainer.style.display = 'none';
+
+        if (description) {
+            description.textContent = state.selectedCountries.length === 0
+                ? 'Select 2+ countries to compare'
+                : 'Select 1 more country to compare';
+        }
         return;
     }
 
-    section.style.display = 'block';
+    // Hide placeholder, show chart
+    if (placeholder) placeholder.style.display = 'none';
+    if (chartContainer) chartContainer.style.display = 'block';
 
     // Get data for selected countries
     const filteredData = getFilteredCountryData();
