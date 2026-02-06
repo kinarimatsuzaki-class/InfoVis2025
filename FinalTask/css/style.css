@@ -427,6 +427,20 @@ select option {
     gap: var(--spacing-md);
 }
 
+/* Comparison Section - Full Width */
+.comparison-section {
+    width: 100%;
+    margin-top: var(--spacing-md);
+}
+
+.comparison-panel {
+    min-height: 400px;
+}
+
+.comparison-panel .chart-container {
+    min-height: 300px;
+}
+
 @media (max-width: 1200px) {
     .viz-container {
         grid-template-columns: 1fr;

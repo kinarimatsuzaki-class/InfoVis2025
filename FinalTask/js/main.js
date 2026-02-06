@@ -44,6 +44,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         // Initialize visualizations
         initScatterPlot();
         initBarChart();
+        initComparisonChart();
         initLegend();
 
         // Setup event listeners
@@ -583,6 +584,164 @@ function getCountryName(noc) {
 }
 
 // ===================================
+// Comparison Chart (View 3) - Grouped Bar Chart
+// Based on Munzner's juxtaposition principle for comparison
+// ===================================
+let compSvg, compWidth, compHeight, compMargin;
+
+function initComparisonChart() {
+    const container = document.getElementById('comparison-chart');
+    const rect = container.getBoundingClientRect();
+
+    compMargin = { top: 20, right: 30, bottom: 60, left: 60 };
+    compWidth = rect.width - compMargin.left - compMargin.right;
+    compHeight = 300 - compMargin.top - compMargin.bottom;
+
+    compSvg = d3.select('#comparison-chart')
+        .append('svg')
+        .attr('width', rect.width)
+        .attr('height', 300)
+        .append('g')
+        .attr('transform', `translate(${compMargin.left},${compMargin.top})`);
+
+    // Add axes groups
+    compSvg.append('g')
+        .attr('class', 'x-axis axis')
+        .attr('transform', `translate(0,${compHeight})`);
+
+    compSvg.append('g')
+        .attr('class', 'y-axis axis');
+
+    // Y-axis label
+    compSvg.append('text')
+        .attr('class', 'axis-label')
+        .attr('transform', 'rotate(-90)')
+        .attr('x', -compHeight / 2)
+        .attr('y', -45)
+        .attr('text-anchor', 'middle')
+        .text('Medal Count');
+}
+
+function updateComparisonChart() {
+    const section = document.getElementById('comparison-section');
+
+    if (state.selectedCountries.length < 2) {
+        section.style.display = 'none';
+        return;
+    }
+
+    section.style.display = 'block';
+
+    // Get data for selected countries
+    const filteredData = getFilteredCountryData();
+    const comparisonData = state.selectedCountries.map(noc => {
+        const countryData = filteredData.find(d => d.noc === noc) || { gold: 0, silver: 0, bronze: 0 };
+        return {
+            noc: noc,
+            name: getCountryName(noc),
+            gold: countryData.gold || 0,
+            silver: countryData.silver || 0,
+            bronze: countryData.bronze || 0,
+            total: (countryData.gold || 0) + (countryData.silver || 0) + (countryData.bronze || 0)
+        };
+    });
+
+    // Update description
+    document.getElementById('comparison-description').textContent =
+        `Comparing ${comparisonData.map(d => d.name).join(' vs ')}`;
+
+    // Recalculate dimensions
+    const container = document.getElementById('comparison-chart');
+    const rect = container.getBoundingClientRect();
+    compWidth = rect.width - compMargin.left - compMargin.right;
+
+    // Country scale (outer)
+    const x0 = d3.scaleBand()
+        .domain(comparisonData.map(d => d.noc))
+        .rangeRound([0, compWidth])
+        .paddingInner(0.2);
+
+    // Medal type scale (inner)
+    const medalTypes = ['gold', 'silver', 'bronze'];
+    const x1 = d3.scaleBand()
+        .domain(medalTypes)
+        .rangeRound([0, x0.bandwidth()])
+        .padding(0.1);
+
+    // Y scale
+    const yMax = d3.max(comparisonData, d => Math.max(d.gold, d.silver, d.bronze)) * 1.1;
+    const y = d3.scaleLinear()
+        .domain([0, yMax])
+        .range([compHeight, 0]);
+
+    // Update axes
+    compSvg.select('.x-axis')
+        .transition()
+        .duration(500)
+        .call(d3.axisBottom(x0).tickFormat(noc => getCountryName(noc)));
+
+    compSvg.select('.y-axis')
+        .transition()
+        .duration(500)
+        .call(d3.axisLeft(y).ticks(5));
+
+    // Country groups
+    const countryGroups = compSvg.selectAll('.country-group')
+        .data(comparisonData, d => d.noc);
+
+    countryGroups.exit().remove();
+
+    const countryGroupsEnter = countryGroups.enter()
+        .append('g')
+        .attr('class', 'country-group');
+
+    const allGroups = countryGroupsEnter.merge(countryGroups)
+        .attr('transform', d => `translate(${x0(d.noc)},0)`);
+
+    // Bars for each medal type
+    medalTypes.forEach(medalType => {
+        const bars = allGroups.selectAll(`.bar-${medalType}`)
+            .data(d => [{ type: medalType, value: d[medalType], noc: d.noc }]);
+
+        bars.exit().remove();
+
+        bars.enter()
+            .append('rect')
+            .attr('class', `bar-${medalType}`)
+            .attr('x', x1(medalType))
+            .attr('y', compHeight)
+            .attr('width', x1.bandwidth())
+            .attr('height', 0)
+            .attr('fill', medalColors[medalType])
+            .merge(bars)
+            .transition()
+            .duration(500)
+            .attr('x', x1(medalType))
+            .attr('y', d => y(d.value))
+            .attr('width', x1.bandwidth())
+            .attr('height', d => compHeight - y(d.value));
+    });
+
+    // Add value labels on bars
+    allGroups.selectAll('.bar-label').remove();
+    medalTypes.forEach(medalType => {
+        allGroups.each(function (d) {
+            const value = d[medalType];
+            if (value > 0) {
+                d3.select(this).append('text')
+                    .attr('class', 'bar-label')
+                    .attr('x', x1(medalType) + x1.bandwidth() / 2)
+                    .attr('y', y(value) - 5)
+                    .attr('text-anchor', 'middle')
+                    .attr('font-size', '10px')
+                    .attr('fill', 'var(--text-secondary)')
+                    .text(value);
+            }
+        });
+    });
+}
+
+// ===================================
 // Legend
 // ===================================
 function initLegend() {
@@ -731,6 +890,7 @@ function updateInfoPanel() {
 function updateVisualizations() {
     updateScatterPlot();
     updateBarChart();
+    updateComparisonChart();
 }
 
 // ===================================
