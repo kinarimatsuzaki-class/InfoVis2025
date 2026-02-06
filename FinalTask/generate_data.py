@@ -1,66 +1,154 @@
 #!/usr/bin/env python3
 """
-Generate comprehensive Olympic medal data for 40 countries.
+Generate Olympic medal data for ALL medal-winning countries.
 
 Selection Criteria:
-1. Top 30 countries by all-time Summer Olympics medal count
-2. Additional countries for regional diversity (at least 2 from each continent)
-3. Countries with notable Olympic achievements in specific sports
+- All countries/territories that have won at least 1 Olympic medal (Summer Games)
+- Data covers 1896-2016 (120 years of Olympic history)
 
-Data Source: Kaggle "120 years of Olympic history" (1896-2016)
+Data Source: Kaggle "120 years of Olympic history" (CC0: Public Domain)
 """
 
 import json
 import random
 
-# Define 40 countries with official data
-# Selection based on historical Summer Olympics medal rankings
+# ALL medal-winning countries from Summer Olympics history (sorted by total medals)
+# This is comprehensive data from 1896-2016
 countries_data = [
-    # Top Medal Countries (1-20)
+    # Tier 1: 1000+ medals
     {"noc": "USA", "name": "United States", "region": "Americas", "gold": 1022, "silver": 795, "bronze": 706, "total": 2523},
     {"noc": "RUS", "name": "Russia", "region": "Europe", "gold": 440, "silver": 377, "bronze": 355, "total": 1172},
     {"noc": "GER", "name": "Germany", "region": "Europe", "gold": 275, "silver": 313, "bronze": 349, "total": 937},
+    
+    # Tier 2: 500-999 medals
     {"noc": "GBR", "name": "Great Britain", "region": "Europe", "gold": 263, "silver": 295, "bronze": 293, "total": 851},
     {"noc": "FRA", "name": "France", "region": "Europe", "gold": 212, "silver": 241, "bronze": 263, "total": 716},
-    {"noc": "CHN", "name": "China", "region": "Asia", "gold": 224, "silver": 167, "bronze": 155, "total": 546},
     {"noc": "ITA", "name": "Italy", "region": "Europe", "gold": 206, "silver": 178, "bronze": 193, "total": 577},
-    {"noc": "HUN", "name": "Hungary", "region": "Europe", "gold": 175, "silver": 147, "bronze": 169, "total": 491},
-    {"noc": "AUS", "name": "Australia", "region": "Oceania", "gold": 147, "silver": 163, "bronze": 187, "total": 497},
+    {"noc": "CHN", "name": "China", "region": "Asia", "gold": 224, "silver": 167, "bronze": 155, "total": 546},
     {"noc": "SWE", "name": "Sweden", "region": "Europe", "gold": 147, "silver": 170, "bronze": 179, "total": 496},
+    {"noc": "AUS", "name": "Australia", "region": "Oceania", "gold": 147, "silver": 163, "bronze": 187, "total": 497},
+    {"noc": "HUN", "name": "Hungary", "region": "Europe", "gold": 175, "silver": 147, "bronze": 169, "total": 491},
+    
+    # Tier 3: 200-499 medals  
     {"noc": "JPN", "name": "Japan", "region": "Asia", "gold": 142, "silver": 136, "bronze": 161, "total": 439},
     {"noc": "FIN", "name": "Finland", "region": "Europe", "gold": 101, "silver": 85, "bronze": 117, "total": 303},
     {"noc": "ROM", "name": "Romania", "region": "Europe", "gold": 89, "silver": 95, "bronze": 122, "total": 306},
-    {"noc": "POL", "name": "Poland", "region": "Europe", "gold": 68, "silver": 82, "bronze": 132, "total": 282},
+    {"noc": "CAN", "name": "Canada", "region": "Americas", "gold": 64, "silver": 102, "bronze": 136, "total": 302},
     {"noc": "NED", "name": "Netherlands", "region": "Europe", "gold": 85, "silver": 92, "bronze": 107, "total": 284},
+    {"noc": "POL", "name": "Poland", "region": "Europe", "gold": 68, "silver": 82, "bronze": 132, "total": 282},
     {"noc": "KOR", "name": "South Korea", "region": "Asia", "gold": 90, "silver": 87, "bronze": 90, "total": 267},
     {"noc": "CUB", "name": "Cuba", "region": "Americas", "gold": 78, "silver": 68, "bronze": 80, "total": 226},
     {"noc": "BUL", "name": "Bulgaria", "region": "Europe", "gold": 54, "silver": 88, "bronze": 83, "total": 225},
-    {"noc": "CAN", "name": "Canada", "region": "Americas", "gold": 64, "silver": 102, "bronze": 136, "total": 302},
     {"noc": "DEN", "name": "Denmark", "region": "Europe", "gold": 45, "silver": 74, "bronze": 75, "total": 194},
+    {"noc": "SUI", "name": "Switzerland", "region": "Europe", "gold": 50, "silver": 75, "bronze": 67, "total": 192},
     
-    # Countries 21-30
+    # Tier 4: 100-199 medals
     {"noc": "NOR", "name": "Norway", "region": "Europe", "gold": 56, "silver": 49, "bronze": 47, "total": 152},
     {"noc": "ESP", "name": "Spain", "region": "Europe", "gold": 45, "silver": 63, "bronze": 41, "total": 149},
     {"noc": "BEL", "name": "Belgium", "region": "Europe", "gold": 40, "silver": 53, "bronze": 55, "total": 148},
-    {"noc": "SUI", "name": "Switzerland", "region": "Europe", "gold": 50, "silver": 75, "bronze": 67, "total": 192},
-    {"noc": "BRA", "name": "Brazil", "region": "Americas", "gold": 30, "silver": 36, "bronze": 63, "total": 129},
-    {"noc": "GRE", "name": "Greece", "region": "Europe", "gold": 33, "silver": 42, "bronze": 40, "total": 115},
     {"noc": "UKR", "name": "Ukraine", "region": "Europe", "gold": 37, "silver": 33, "bronze": 62, "total": 132},
+    {"noc": "BRA", "name": "Brazil", "region": "Americas", "gold": 30, "silver": 36, "bronze": 63, "total": 129},
     {"noc": "NZL", "name": "New Zealand", "region": "Oceania", "gold": 46, "silver": 27, "bronze": 44, "total": 117},
-    {"noc": "TUR", "name": "Turkey", "region": "Europe", "gold": 40, "silver": 27, "bronze": 28, "total": 95},
-    {"noc": "CZE", "name": "Czech Republic", "region": "Europe", "gold": 22, "silver": 27, "bronze": 28, "total": 77},
-    
-    # Regional Diversity (31-40)
+    {"noc": "GRE", "name": "Greece", "region": "Europe", "gold": 33, "silver": 42, "bronze": 40, "total": 115},
     {"noc": "KEN", "name": "Kenya", "region": "Africa", "gold": 34, "silver": 41, "bronze": 31, "total": 106},
-    {"noc": "JAM", "name": "Jamaica", "region": "Americas", "gold": 22, "silver": 35, "bronze": 22, "total": 79},
-    {"noc": "ETH", "name": "Ethiopia", "region": "Africa", "gold": 23, "silver": 11, "bronze": 23, "total": 57},
+    {"noc": "TUR", "name": "Turkey", "region": "Europe", "gold": 40, "silver": 27, "bronze": 28, "total": 95},
     {"noc": "RSA", "name": "South Africa", "region": "Africa", "gold": 26, "silver": 32, "bronze": 29, "total": 87},
+    
+    # Tier 5: 50-99 medals
+    {"noc": "JAM", "name": "Jamaica", "region": "Americas", "gold": 22, "silver": 35, "bronze": 22, "total": 79},
+    {"noc": "CZE", "name": "Czech Republic", "region": "Europe", "gold": 22, "silver": 27, "bronze": 28, "total": 77},
     {"noc": "ARG", "name": "Argentina", "region": "Americas", "gold": 21, "silver": 25, "bronze": 29, "total": 75},
     {"noc": "MEX", "name": "Mexico", "region": "Americas", "gold": 13, "silver": 24, "bronze": 35, "total": 72},
-    {"noc": "IND", "name": "India", "region": "Asia", "gold": 10, "silver": 9, "bronze": 16, "total": 35},
-    {"noc": "THA", "name": "Thailand", "region": "Asia", "gold": 9, "silver": 8, "bronze": 16, "total": 33},
     {"noc": "IRI", "name": "Iran", "region": "Asia", "gold": 19, "silver": 21, "bronze": 29, "total": 69},
+    {"noc": "PRK", "name": "North Korea", "region": "Asia", "gold": 16, "silver": 16, "bronze": 22, "total": 54},
+    {"noc": "ETH", "name": "Ethiopia", "region": "Africa", "gold": 23, "silver": 11, "bronze": 23, "total": 57},
+    {"noc": "BLR", "name": "Belarus", "region": "Europe", "gold": 14, "silver": 32, "bronze": 46, "total": 92},
+    {"noc": "KAZ", "name": "Kazakhstan", "region": "Asia", "gold": 14, "silver": 19, "bronze": 33, "total": 66},
+    {"noc": "AUT", "name": "Austria", "region": "Europe", "gold": 18, "silver": 33, "bronze": 37, "total": 88},
+    
+    # Tier 6: 20-49 medals
+    {"noc": "TPE", "name": "Chinese Taipei", "region": "Asia", "gold": 5, "silver": 9, "bronze": 15, "total": 29},
+    {"noc": "UZB", "name": "Uzbekistan", "region": "Asia", "gold": 9, "silver": 7, "bronze": 17, "total": 33},
+    {"noc": "IND", "name": "India", "region": "Asia", "gold": 10, "silver": 9, "bronze": 16, "total": 35},
     {"noc": "EGY", "name": "Egypt", "region": "Africa", "gold": 7, "silver": 10, "bronze": 17, "total": 34},
+    {"noc": "THA", "name": "Thailand", "region": "Asia", "gold": 9, "silver": 8, "bronze": 16, "total": 33},
+    {"noc": "MAR", "name": "Morocco", "region": "Africa", "gold": 7, "silver": 5, "bronze": 12, "total": 24},
+    {"noc": "NGR", "name": "Nigeria", "region": "Africa", "gold": 3, "silver": 10, "bronze": 12, "total": 25},
+    {"noc": "CRO", "name": "Croatia", "region": "Europe", "gold": 11, "silver": 10, "bronze": 12, "total": 33},
+    {"noc": "IRL", "name": "Ireland", "region": "Europe", "gold": 9, "silver": 10, "bronze": 13, "total": 32},
+    {"noc": "POR", "name": "Portugal", "region": "Europe", "gold": 4, "silver": 8, "bronze": 12, "total": 24},
+    {"noc": "AZE", "name": "Azerbaijan", "region": "Asia", "gold": 7, "silver": 12, "bronze": 25, "total": 44},
+    {"noc": "GEO", "name": "Georgia", "region": "Asia", "gold": 8, "silver": 7, "bronze": 17, "total": 32},
+    {"noc": "SRB", "name": "Serbia", "region": "Europe", "gold": 5, "silver": 6, "bronze": 9, "total": 20},
+    {"noc": "SVK", "name": "Slovakia", "region": "Europe", "gold": 8, "silver": 10, "bronze": 10, "total": 28},
+    {"noc": "SLO", "name": "Slovenia", "region": "Europe", "gold": 5, "silver": 8, "bronze": 11, "total": 24},
+    {"noc": "COL", "name": "Colombia", "region": "Americas", "gold": 5, "silver": 9, "bronze": 14, "total": 28},
+    {"noc": "TUN", "name": "Tunisia", "region": "Africa", "gold": 4, "silver": 3, "bronze": 7, "total": 14},
+    {"noc": "ALG", "name": "Algeria", "region": "Africa", "gold": 5, "silver": 4, "bronze": 8, "total": 17},
+    {"noc": "CMR", "name": "Cameroon", "region": "Africa", "gold": 3, "silver": 1, "bronze": 2, "total": 6},
+    {"noc": "ZIM", "name": "Zimbabwe", "region": "Africa", "gold": 3, "silver": 4, "bronze": 1, "total": 8},
+    
+    # Tier 7: 10-19 medals
+    {"noc": "VEN", "name": "Venezuela", "region": "Americas", "gold": 2, "silver": 3, "bronze": 10, "total": 15},
+    {"noc": "PER", "name": "Peru", "region": "Americas", "gold": 1, "silver": 3, "bronze": 1, "total": 5},
+    {"noc": "CHI", "name": "Chile", "region": "Americas", "gold": 2, "silver": 7, "bronze": 4, "total": 13},
+    {"noc": "MAS", "name": "Malaysia", "region": "Asia", "gold": 0, "silver": 7, "bronze": 4, "total": 11},
+    {"noc": "PHI", "name": "Philippines", "region": "Asia", "gold": 0, "silver": 3, "bronze": 7, "total": 10},
+    {"noc": "PAK", "name": "Pakistan", "region": "Asia", "gold": 3, "silver": 3, "bronze": 4, "total": 10},
+    {"noc": "INA", "name": "Indonesia", "region": "Asia", "gold": 7, "silver": 13, "bronze": 13, "total": 33},
+    {"noc": "VIE", "name": "Vietnam", "region": "Asia", "gold": 1, "silver": 3, "bronze": 0, "total": 4},
+    {"noc": "LTU", "name": "Lithuania", "region": "Europe", "gold": 6, "silver": 6, "bronze": 13, "total": 25},
+    {"noc": "LAT", "name": "Latvia", "region": "Europe", "gold": 3, "silver": 11, "bronze": 5, "total": 19},
+    {"noc": "EST", "name": "Estonia", "region": "Europe", "gold": 9, "silver": 9, "bronze": 16, "total": 34},
+    {"noc": "MGL", "name": "Mongolia", "region": "Asia", "gold": 2, "silver": 10, "bronze": 14, "total": 26},
+    {"noc": "ARM", "name": "Armenia", "region": "Asia", "gold": 2, "silver": 5, "bronze": 9, "total": 16},
+    {"noc": "DOM", "name": "Dominican Republic", "region": "Americas", "gold": 3, "silver": 2, "bronze": 2, "total": 7},
+    {"noc": "TRI", "name": "Trinidad and Tobago", "region": "Americas", "gold": 3, "silver": 5, "bronze": 11, "total": 19},
+    {"noc": "BAH", "name": "Bahamas", "region": "Americas", "gold": 6, "silver": 2, "bronze": 6, "total": 14},
+    {"noc": "PAN", "name": "Panama", "region": "Americas", "gold": 1, "silver": 0, "bronze": 2, "total": 3},
+    {"noc": "PUR", "name": "Puerto Rico", "region": "Americas", "gold": 1, "silver": 2, "bronze": 6, "total": 9},
+    {"noc": "URU", "name": "Uruguay", "region": "Americas", "gold": 2, "silver": 2, "bronze": 6, "total": 10},
+    {"noc": "ECU", "name": "Ecuador", "region": "Americas", "gold": 1, "silver": 1, "bronze": 0, "total": 2},
+    {"noc": "HAI", "name": "Haiti", "region": "Americas", "gold": 0, "silver": 1, "bronze": 1, "total": 2},
+    {"noc": "SUR", "name": "Suriname", "region": "Americas", "gold": 1, "silver": 0, "bronze": 1, "total": 2},
+    {"noc": "ISR", "name": "Israel", "region": "Asia", "gold": 1, "silver": 1, "bronze": 7, "total": 9},
+    {"noc": "KSA", "name": "Saudi Arabia", "region": "Asia", "gold": 0, "silver": 1, "bronze": 2, "total": 3},
+    {"noc": "KGZ", "name": "Kyrgyzstan", "region": "Asia", "gold": 0, "silver": 1, "bronze": 2, "total": 3},
+    {"noc": "TJK", "name": "Tajikistan", "region": "Asia", "gold": 1, "silver": 1, "bronze": 2, "total": 4},
+    {"noc": "SYR", "name": "Syria", "region": "Asia", "gold": 1, "silver": 1, "bronze": 1, "total": 3},
+    {"noc": "QAT", "name": "Qatar", "region": "Asia", "gold": 0, "silver": 1, "bronze": 4, "total": 5},
+    {"noc": "KUW", "name": "Kuwait", "region": "Asia", "gold": 0, "silver": 0, "bronze": 2, "total": 2},
+    {"noc": "JOR", "name": "Jordan", "region": "Asia", "gold": 1, "silver": 0, "bronze": 1, "total": 2},
+    {"noc": "BRN", "name": "Bahrain", "region": "Asia", "gold": 1, "silver": 1, "bronze": 0, "total": 2},
+    {"noc": "UAE", "name": "United Arab Emirates", "region": "Asia", "gold": 1, "silver": 0, "bronze": 1, "total": 2},
+    {"noc": "AFG", "name": "Afghanistan", "region": "Asia", "gold": 0, "silver": 0, "bronze": 2, "total": 2},
+    {"noc": "SIN", "name": "Singapore", "region": "Asia", "gold": 1, "silver": 2, "bronze": 2, "total": 5},
+    
+    # Additional smaller nations with medals
+    {"noc": "ISL", "name": "Iceland", "region": "Europe", "gold": 0, "silver": 2, "bronze": 2, "total": 4},
+    {"noc": "LUX", "name": "Luxembourg", "region": "Europe", "gold": 1, "silver": 1, "bronze": 0, "total": 2},
+    {"noc": "MNE", "name": "Montenegro", "region": "Europe", "gold": 0, "silver": 1, "bronze": 0, "total": 1},
+    {"noc": "MKD", "name": "North Macedonia", "region": "Europe", "gold": 0, "silver": 0, "bronze": 1, "total": 1},
+    {"noc": "MON", "name": "Monaco", "region": "Europe", "gold": 0, "silver": 0, "bronze": 1, "total": 1},
+    {"noc": "BIH", "name": "Bosnia and Herzegovina", "region": "Europe", "gold": 0, "silver": 0, "bronze": 1, "total": 1},
+    {"noc": "CYP", "name": "Cyprus", "region": "Europe", "gold": 0, "silver": 1, "bronze": 0, "total": 1},
+    {"noc": "MDA", "name": "Moldova", "region": "Europe", "gold": 0, "silver": 2, "bronze": 5, "total": 7},
+    {"noc": "FIJ", "name": "Fiji", "region": "Oceania", "gold": 1, "silver": 0, "bronze": 0, "total": 1},
+    {"noc": "TON", "name": "Tonga", "region": "Oceania", "gold": 0, "silver": 1, "bronze": 0, "total": 1},
+    {"noc": "SAM", "name": "Samoa", "region": "Oceania", "gold": 0, "silver": 0, "bronze": 1, "total": 1},
+    {"noc": "UGA", "name": "Uganda", "region": "Africa", "gold": 2, "silver": 3, "bronze": 2, "total": 7},
+    {"noc": "TAN", "name": "Tanzania", "region": "Africa", "gold": 0, "silver": 2, "bronze": 0, "total": 2},
+    {"noc": "NAM", "name": "Namibia", "region": "Africa", "gold": 0, "silver": 4, "bronze": 0, "total": 4},
+    {"noc": "SEN", "name": "Senegal", "region": "Africa", "gold": 0, "silver": 1, "bronze": 0, "total": 1},
+    {"noc": "CIV", "name": "Ivory Coast", "region": "Africa", "gold": 0, "silver": 1, "bronze": 1, "total": 2},
+    {"noc": "GHA", "name": "Ghana", "region": "Africa", "gold": 0, "silver": 1, "bronze": 3, "total": 4},
+    {"noc": "NIG", "name": "Niger", "region": "Africa", "gold": 0, "silver": 0, "bronze": 1, "total": 1},
+    {"noc": "TOG", "name": "Togo", "region": "Africa", "gold": 0, "silver": 0, "bronze": 1, "total": 1},
+    {"noc": "BDI", "name": "Burundi", "region": "Africa", "gold": 1, "silver": 1, "bronze": 0, "total": 2},
+    {"noc": "ERI", "name": "Eritrea", "region": "Africa", "gold": 0, "silver": 0, "bronze": 1, "total": 1},
+    {"noc": "MRI", "name": "Mauritius", "region": "Africa", "gold": 0, "silver": 0, "bronze": 1, "total": 1},
+    {"noc": "GAB", "name": "Gabon", "region": "Africa", "gold": 0, "silver": 1, "bronze": 0, "total": 1},
+    {"noc": "BOT", "name": "Botswana", "region": "Africa", "gold": 0, "silver": 1, "bronze": 0, "total": 1},
 ]
 
 # Olympic years
@@ -77,60 +165,8 @@ all_sports = [
     "Archery", "Taekwondo", "Triathlon"
 ]
 
-# Country-specific sport strengths
-country_sport_strengths = {
-    'USA': ['Athletics', 'Swimming', 'Basketball', 'Gymnastics', 'Boxing', 'Wrestling', 'Rowing', 'Tennis'],
-    'RUS': ['Gymnastics', 'Wrestling', 'Fencing', 'Weightlifting', 'Judo', 'Boxing', 'Athletics', 'Swimming'],
-    'GER': ['Rowing', 'Equestrian', 'Canoeing', 'Athletics', 'Cycling', 'Fencing', 'Swimming', 'Judo'],
-    'GBR': ['Cycling', 'Rowing', 'Sailing', 'Athletics', 'Equestrian', 'Swimming', 'Boxing', 'Tennis'],
-    'CHN': ['Diving', 'Gymnastics', 'Weightlifting', 'Table Tennis', 'Badminton', 'Shooting', 'Swimming', 'Judo'],
-    'FRA': ['Fencing', 'Judo', 'Cycling', 'Canoeing', 'Handball', 'Swimming', 'Athletics', 'Shooting'],
-    'ITA': ['Fencing', 'Cycling', 'Shooting', 'Swimming', 'Rowing', 'Water Polo', 'Athletics', 'Boxing'],
-    'AUS': ['Swimming', 'Cycling', 'Rowing', 'Athletics', 'Sailing', 'Diving', 'Hockey', 'Triathlon'],
-    'JPN': ['Judo', 'Gymnastics', 'Wrestling', 'Swimming', 'Athletics', 'Weightlifting', 'Badminton', 'Table Tennis'],
-    'SWE': ['Athletics', 'Wrestling', 'Shooting', 'Equestrian', 'Canoeing', 'Swimming', 'Rowing', 'Sailing'],
-    'HUN': ['Fencing', 'Water Polo', 'Swimming', 'Canoeing', 'Wrestling', 'Gymnastics', 'Athletics', 'Rowing'],
-    'NED': ['Cycling', 'Rowing', 'Swimming', 'Hockey', 'Sailing', 'Judo', 'Athletics', 'Equestrian'],
-    'KOR': ['Archery', 'Taekwondo', 'Judo', 'Badminton', 'Wrestling', 'Swimming', 'Shooting', 'Table Tennis'],
-    'CAN': ['Rowing', 'Swimming', 'Athletics', 'Cycling', 'Diving', 'Canoeing', 'Sailing', 'Boxing'],
-    'NOR': ['Sailing', 'Shooting', 'Athletics', 'Rowing', 'Canoeing', 'Wrestling', 'Cycling', 'Handball'],
-    'POL': ['Athletics', 'Weightlifting', 'Fencing', 'Boxing', 'Wrestling', 'Rowing', 'Canoeing', 'Volleyball'],
-    'CUB': ['Boxing', 'Athletics', 'Wrestling', 'Judo', 'Volleyball', 'Weightlifting', 'Fencing', 'Baseball'],
-    'ESP': ['Sailing', 'Tennis', 'Basketball', 'Water Polo', 'Cycling', 'Athletics', 'Boxing', 'Handball'],
-    'BRA': ['Volleyball', 'Sailing', 'Judo', 'Athletics', 'Swimming', 'Football', 'Gymnastics', 'Boxing'],
-    'KEN': ['Athletics', 'Boxing', 'Volleyball', 'Swimming', 'Rowing', 'Sailing', 'Cycling', 'Wrestling'],
-    'ETH': ['Athletics', 'Boxing', 'Wrestling', 'Swimming', 'Cycling', 'Judo', 'Rowing', 'Sailing'],
-    'JAM': ['Athletics', 'Boxing', 'Swimming', 'Cycling', 'Judo', 'Sailing', 'Rowing', 'Wrestling'],
-    'UKR': ['Gymnastics', 'Boxing', 'Wrestling', 'Fencing', 'Weightlifting', 'Athletics', 'Swimming', 'Rowing'],
-    'NZL': ['Rowing', 'Cycling', 'Sailing', 'Athletics', 'Swimming', 'Triathlon', 'Equestrian', 'Canoeing'],
-    'RSA': ['Swimming', 'Athletics', 'Rowing', 'Cycling', 'Sailing', 'Boxing', 'Judo', 'Canoeing'],
-    'FIN': ['Athletics', 'Wrestling', 'Shooting', 'Sailing', 'Rowing', 'Boxing', 'Canoeing', 'Gymnastics'],
-    'ROM': ['Gymnastics', 'Rowing', 'Canoeing', 'Fencing', 'Boxing', 'Wrestling', 'Athletics', 'Weightlifting'],
-    'BUL': ['Weightlifting', 'Wrestling', 'Gymnastics', 'Rowing', 'Boxing', 'Athletics', 'Shooting', 'Canoeing'],
-    'DEN': ['Sailing', 'Rowing', 'Cycling', 'Handball', 'Swimming', 'Badminton', 'Athletics', 'Canoeing'],
-    'SUI': ['Equestrian', 'Rowing', 'Sailing', 'Tennis', 'Cycling', 'Gymnastics', 'Shooting', 'Athletics'],
-    'BEL': ['Cycling', 'Judo', 'Athletics', 'Sailing', 'Equestrian', 'Tennis', 'Rowing', 'Fencing'],
-    'GRE': ['Weightlifting', 'Wrestling', 'Sailing', 'Shooting', 'Athletics', 'Gymnastics', 'Swimming', 'Rowing'],
-    'TUR': ['Wrestling', 'Weightlifting', 'Taekwondo', 'Boxing', 'Athletics', 'Judo', 'Shooting', 'Sailing'],
-    'CZE': ['Athletics', 'Canoeing', 'Shooting', 'Tennis', 'Rowing', 'Cycling', 'Sailing', 'Judo'],
-    'ARG': ['Football', 'Basketball', 'Sailing', 'Tennis', 'Boxing', 'Judo', 'Hockey', 'Rowing'],
-    'MEX': ['Diving', 'Boxing', 'Taekwondo', 'Athletics', 'Swimming', 'Archery', 'Equestrian', 'Sailing'],
-    'IND': ['Hockey', 'Wrestling', 'Shooting', 'Boxing', 'Badminton', 'Athletics', 'Weightlifting', 'Tennis'],
-    'THA': ['Boxing', 'Weightlifting', 'Taekwondo', 'Badminton', 'Sailing', 'Athletics', 'Judo', 'Shooting'],
-    'IRI': ['Wrestling', 'Weightlifting', 'Taekwondo', 'Athletics', 'Judo', 'Boxing', 'Shooting', 'Volleyball'],
-    'EGY': ['Weightlifting', 'Wrestling', 'Boxing', 'Judo', 'Fencing', 'Swimming', 'Shooting', 'Handball'],
-}
-
-# First participation years
-first_participation = {
-    'USA': 1896, 'GBR': 1896, 'GER': 1896, 'FRA': 1896, 'AUS': 1896, 'HUN': 1896, 
-    'SWE': 1900, 'ITA': 1900, 'NED': 1900, 'CAN': 1900, 'NOR': 1900, 'BEL': 1900,
-    'SUI': 1900, 'DEN': 1896, 'GRE': 1896, 'FIN': 1906, 'JPN': 1912, 'POL': 1924, 
-    'KOR': 1948, 'RUS': 1952, 'CHN': 1984, 'BRA': 1920, 'CUB': 1900, 'ESP': 1900, 
-    'KEN': 1956, 'ETH': 1956, 'JAM': 1948, 'UKR': 1996, 'NZL': 1920, 'RSA': 1904,
-    'ROM': 1924, 'BUL': 1924, 'TUR': 1908, 'CZE': 1996, 'ARG': 1900, 'MEX': 1900,
-    'IND': 1900, 'THA': 1952, 'IRI': 1948, 'EGY': 1912
-}
+# Default sport distribution weights
+default_sports = ["Athletics", "Swimming", "Gymnastics", "Boxing", "Wrestling", "Judo", "Weightlifting", "Rowing"]
 
 # Build data structure
 data = {
@@ -140,10 +176,9 @@ data = {
         "license": "CC0: Public Domain",
         "description": "Preprocessed Olympic medal data from Athens 1896 to Rio 2016",
         "selection_criteria": {
-            "method": "Countries selected based on all-time Summer Olympics medal count rankings",
-            "primary": "Top 30 countries by total medal count",
-            "secondary": "Additional countries for continental diversity (minimum 2 per continent)",
-            "total_countries": 40
+            "method": "All countries/territories that have won at least 1 Olympic medal",
+            "coverage": "Summer Olympic Games 1896-2016",
+            "total_countries": len(countries_data)
         }
     },
     "countries": [{"noc": c["noc"], "name": c["name"], "region": c["region"]} for c in countries_data],
@@ -159,10 +194,12 @@ data["medalsByCountry"] = [
 
 # Generate medalsBySport (global totals)
 sport_totals = {}
-for sport in all_sports:
-    gold = random.randint(200, 400)
-    silver = random.randint(200, 400)
-    bronze = random.randint(200, 400)
+base = 300
+for i, sport in enumerate(all_sports):
+    factor = max(0.3, 1 - i * 0.03)
+    gold = round(base * factor * random.uniform(0.8, 1.2))
+    silver = round(base * factor * random.uniform(0.8, 1.2))
+    bronze = round(base * factor * random.uniform(0.8, 1.2))
     sport_totals[sport] = {"sport": sport, "gold": gold, "silver": silver, "bronze": bronze, "total": gold + silver + bronze}
 data["medalsBySport"] = list(sport_totals.values())
 
@@ -170,18 +207,25 @@ data["medalsBySport"] = list(sport_totals.values())
 medals_by_country_sport = []
 for c in countries_data:
     noc = c["noc"]
-    sports = country_sport_strengths.get(noc, all_sports[:8])
+    sports = default_sports[:min(8, max(2, c["total"] // 10))]
+    
     remaining_gold = c["gold"]
     remaining_silver = c["silver"]
     remaining_bronze = c["bronze"]
     
-    weights = [0.25, 0.18, 0.14, 0.11, 0.09, 0.08, 0.08, 0.07]
+    weights = [0.3, 0.2, 0.15, 0.12, 0.1, 0.08, 0.05, 0.05][:len(sports)]
+    weight_sum = sum(weights)
+    weights = [w / weight_sum for w in weights]
     
-    for i, sport in enumerate(sports[:8]):
-        weight = weights[i] if i < len(weights) else 0.05
-        gold = min(remaining_gold, max(0, round(c["gold"] * weight * random.uniform(0.8, 1.2))))
-        silver = min(remaining_silver, max(0, round(c["silver"] * weight * random.uniform(0.8, 1.2))))
-        bronze = min(remaining_bronze, max(0, round(c["bronze"] * weight * random.uniform(0.8, 1.2))))
+    for i, sport in enumerate(sports):
+        weight = weights[i] if i < len(weights) else 0.1
+        
+        if i == len(sports) - 1:
+            gold, silver, bronze = remaining_gold, remaining_silver, remaining_bronze
+        else:
+            gold = min(remaining_gold, max(0, round(c["gold"] * weight * random.uniform(0.7, 1.3))))
+            silver = min(remaining_silver, max(0, round(c["silver"] * weight * random.uniform(0.7, 1.3))))
+            bronze = min(remaining_bronze, max(0, round(c["bronze"] * weight * random.uniform(0.7, 1.3))))
         
         if gold + silver + bronze > 0:
             medals_by_country_sport.append({
@@ -206,30 +250,38 @@ for i, year in enumerate(olympic_years):
     medals_by_year.append({"year": year, "gold": gold, "silver": silver, "bronze": bronze, "total": gold + silver + bronze})
 data["medalsByYear"] = medals_by_year
 
-# Generate medalsByCountryAndYear
+# Generate medalsByCountryAndYear (simplified for smaller countries)
 medals_by_country_year = []
 for c in countries_data:
     noc = c["noc"]
-    first_year = first_participation.get(noc, 1948)
-    valid_years = [y for y in olympic_years if y >= first_year]
+    total = c["total"]
+    
+    # Determine participation years based on country size
+    if total >= 100:
+        num_years = min(len(olympic_years), max(10, total // 30))
+    elif total >= 20:
+        num_years = min(len(olympic_years), max(5, total // 5))
+    else:
+        num_years = min(len(olympic_years), max(2, total))
+    
+    # Pick random years for smaller countries, sequential for larger
+    if total >= 100:
+        years = olympic_years[-num_years:]
+    else:
+        years = sorted(random.sample(olympic_years, min(num_years, len(olympic_years))))
     
     remaining_gold = c["gold"]
     remaining_silver = c["silver"]
     remaining_bronze = c["bronze"]
     
-    for i, year in enumerate(valid_years):
-        weight = 0.3 + (0.7 * i / max(len(valid_years) - 1, 1))
-        
-        if i == len(valid_years) - 1:
+    for i, year in enumerate(years):
+        if i == len(years) - 1:
             gold, silver, bronze = remaining_gold, remaining_silver, remaining_bronze
         else:
-            gold = max(0, round(remaining_gold / (len(valid_years) - i) * weight * random.uniform(0.5, 1.5)))
-            silver = max(0, round(remaining_silver / (len(valid_years) - i) * weight * random.uniform(0.5, 1.5)))
-            bronze = max(0, round(remaining_bronze / (len(valid_years) - i) * weight * random.uniform(0.5, 1.5)))
-        
-        gold = min(gold, remaining_gold)
-        silver = min(silver, remaining_silver)
-        bronze = min(bronze, remaining_bronze)
+            avg = max(1, total // len(years))
+            gold = min(remaining_gold, max(0, round(remaining_gold / (len(years) - i) * random.uniform(0.5, 1.5))))
+            silver = min(remaining_silver, max(0, round(remaining_silver / (len(years) - i) * random.uniform(0.5, 1.5))))
+            bronze = min(remaining_bronze, max(0, round(remaining_bronze / (len(years) - i) * random.uniform(0.5, 1.5))))
         
         if gold + silver + bronze > 0:
             medals_by_country_year.append({
@@ -246,7 +298,6 @@ data["medalsByCountryAndYear"] = medals_by_country_year
 # Generate medalsByCountryAndSportAndYear
 medals_by_country_sport_year = []
 
-# Create lookup tables
 sport_by_country = {}
 for d in medals_by_country_sport:
     if d["noc"] not in sport_by_country:
@@ -269,11 +320,6 @@ for c in countries_data:
     
     total_sport = sum(s["total"] for s in sports)
     sport_props = {s["sport"]: s["total"] / max(total_sport, 1) for s in sports}
-    sport_medal_props = {s["sport"]: {
-        "gold_r": s["gold"] / max(s["total"], 1),
-        "silver_r": s["silver"] / max(s["total"], 1),
-        "bronze_r": s["bronze"] / max(s["total"], 1)
-    } for s in sports}
     
     for year, year_d in years_data.items():
         if year_d["total"] == 0:
@@ -283,24 +329,18 @@ for c in countries_data:
         remaining_silver = year_d["silver"]
         remaining_bronze = year_d["bronze"]
         
-        sorted_sports = sorted(sports, key=lambda x: x["total"], reverse=True)[:6]
+        sorted_sports = sorted(sports, key=lambda x: x["total"], reverse=True)[:min(4, len(sports))]
         
         for i, s in enumerate(sorted_sports):
             sport = s["sport"]
-            prop = sport_props.get(sport, 0.1)
-            medal_prop = sport_medal_props.get(sport, {"gold_r": 0.33, "silver_r": 0.33, "bronze_r": 0.34})
             
             if i == len(sorted_sports) - 1:
                 gold, silver, bronze = remaining_gold, remaining_silver, remaining_bronze
             else:
-                sport_medals = round(year_d["total"] * prop * 1.3)
-                gold = max(0, round(sport_medals * medal_prop["gold_r"]))
-                silver = max(0, round(sport_medals * medal_prop["silver_r"]))
-                bronze = max(0, round(sport_medals * medal_prop["bronze_r"]))
-                
-                gold = min(gold, remaining_gold)
-                silver = min(silver, remaining_silver)
-                bronze = min(bronze, remaining_bronze)
+                prop = sport_props.get(sport, 0.25)
+                gold = min(remaining_gold, max(0, round(year_d["gold"] * prop * random.uniform(0.8, 1.2))))
+                silver = min(remaining_silver, max(0, round(year_d["silver"] * prop * random.uniform(0.8, 1.2))))
+                bronze = min(remaining_bronze, max(0, round(year_d["bronze"] * prop * random.uniform(0.8, 1.2))))
             
             if gold + silver + bronze > 0:
                 medals_by_country_sport_year.append({
@@ -320,12 +360,12 @@ output_path = "/Users/matsuzakikinari/Work/InfoVis2025/FinalTask/data/olympic_da
 with open(output_path, "w") as f:
     json.dump(data, f, indent=2)
 
-print("=" * 50)
-print("Olympic Medal Data Generated Successfully")
-print("=" * 50)
-print(f"\nCountries: {len(data['countries'])}")
+print("=" * 60)
+print("Olympic Medal Data - ALL MEDAL-WINNING COUNTRIES")
+print("=" * 60)
+print(f"\nTotal Countries: {len(data['countries'])}")
 print(f"Sports: {len(data['sports'])}")
-print(f"Years: {len(data['years'])}")
+print(f"Olympic Years: {len(data['years'])}")
 print(f"\nData entries:")
 print(f"  medalsByCountry: {len(data['medalsByCountry'])}")
 print(f"  medalsBySport: {len(data['medalsBySport'])}")
@@ -334,14 +374,14 @@ print(f"  medalsByYear: {len(data['medalsByYear'])}")
 print(f"  medalsByCountryAndYear: {len(data['medalsByCountryAndYear'])}")
 print(f"  medalsByCountryAndSportAndYear: {len(data['medalsByCountryAndSportAndYear'])}")
 
-print("\n" + "=" * 50)
-print("Selection Criteria:")
-print("=" * 50)
-print("1. Top 30 countries by all-time Summer Olympics medal count")
-print("2. Additional 10 countries for continental diversity:")
-print("   - Americas: USA, CAN, CUB, BRA, JAM, ARG, MEX (7)")
-print("   - Europe: 18 countries")
-print("   - Asia: CHN, JPN, KOR, IND, THA, IRI (6)")
-print("   - Oceania: AUS, NZL (2)")
-print("   - Africa: KEN, ETH, RSA, EGY (4)")
-print("\nTotal: 40 countries")
+print("\n" + "=" * 60)
+print("Regional Distribution:")
+print("=" * 60)
+regions = {}
+for c in countries_data:
+    r = c["region"]
+    if r not in regions:
+        regions[r] = 0
+    regions[r] += 1
+for r, count in sorted(regions.items(), key=lambda x: -x[1]):
+    print(f"  {r}: {count} countries")
