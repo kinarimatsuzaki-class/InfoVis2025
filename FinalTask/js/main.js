@@ -456,10 +456,32 @@ function updateBarChart() {
         document.getElementById('bar-description').textContent =
             `Top sports for ${getCountryName(state.selectedCountry)}${modeLabel}`;
     } else {
-        // Show overall sports breakdown (always all-time for global view)
-        data = state.data.medalsBySport
-            .sort((a, b) => b.total - a.total)
-            .slice(0, 10);
+        // Global sports breakdown
+        if (isYearMode && state.data.medalsByCountryAndSportAndYear) {
+            // Aggregate all countries' sport data within year range
+            const filtered = state.data.medalsByCountryAndSportAndYear
+                .filter(d => d.year >= state.yearRange[0] && d.year <= state.yearRange[1]);
+            
+            const sportTotals = {};
+            filtered.forEach(d => {
+                if (!sportTotals[d.sport]) {
+                    sportTotals[d.sport] = { sport: d.sport, gold: 0, silver: 0, bronze: 0, total: 0 };
+                }
+                sportTotals[d.sport].gold += d.gold;
+                sportTotals[d.sport].silver += d.silver;
+                sportTotals[d.sport].bronze += d.bronze;
+                sportTotals[d.sport].total += d.total;
+            });
+            
+            data = Object.values(sportTotals)
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 10);
+        } else {
+            // All-time: use existing data
+            data = state.data.medalsBySport
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 10);
+        }
 
         document.getElementById('bar-description').textContent =
             `Top 10 Olympic sports${modeLabel}`;
