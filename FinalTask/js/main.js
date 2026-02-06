@@ -9,7 +9,7 @@
 // ===================================
 const state = {
     data: null,
-    selectedCountry: null,
+    selectedCountries: [], // Changed to array for multi-selection
     yearRange: [1896, 2016],
     regionFilter: 'all',
     medalFilter: 'total',
@@ -109,7 +109,7 @@ function setupControls() {
 
     // Reset button
     document.getElementById('reset-btn').addEventListener('click', () => {
-        state.selectedCountry = null;
+        state.selectedCountries = [];
         state.yearRange = [1896, 2016];
         state.regionFilter = 'all';
         state.medalFilter = 'total';
@@ -127,7 +127,7 @@ function setupControls() {
         });
 
         updateVisualizations();
-        updateInfoPanel(null);
+        updateInfoPanel();
     });
 
     // Data mode tabs
@@ -141,13 +141,9 @@ function setupControls() {
             });
 
             updateBarChart();
-            // Update info panel if country is selected
-            if (state.selectedCountry) {
-                const data = getFilteredCountryData();
-                const countryData = data.find(d => d.noc === state.selectedCountry);
-                if (countryData) {
-                    updateInfoPanel(countryData);
-                }
+            // Update info panel if countries are selected
+            if (state.selectedCountries.length > 0) {
+                updateInfoPanel();
             }
         });
     });
@@ -289,18 +285,18 @@ function updateScatterPlot() {
         .attr('cy', d => yScale(d.displayGold))
         .attr('r', d => {
             const baseSize = Math.sqrt(d.displayTotal) / 2 + 5;
-            return d.noc === state.selectedCountry ? baseSize * 1.3 : baseSize;
+            return state.selectedCountries.includes(d.noc) ? baseSize * 1.3 : baseSize;
         })
         .attr('fill', d => regionColors[d.region] || '#888')
         .attr('opacity', d => {
-            if (!state.selectedCountry) return 0.8;
-            return d.noc === state.selectedCountry ? 1 : 0.3;
+            if (state.selectedCountries.length === 0) return 0.8;
+            return state.selectedCountries.includes(d.noc) ? 1 : 0.3;
         });
 
     // Update selection state
     scatterSvg.selectAll('.scatter-point')
-        .classed('selected', d => d.noc === state.selectedCountry)
-        .classed('dimmed', d => state.selectedCountry && d.noc !== state.selectedCountry);
+        .classed('selected', d => state.selectedCountries.includes(d.noc))
+        .classed('dimmed', d => state.selectedCountries.length > 0 && !state.selectedCountries.includes(d.noc));
 }
 
 function getFilteredCountryData() {
@@ -422,15 +418,14 @@ function updateBarChart() {
         ? ` (${state.yearRange[0]}-${state.yearRange[1]})`
         : ' (All-time)';
 
-    if (state.selectedCountry) {
+    if (state.selectedCountries.length > 0) {
+        // Multiple countries selected - aggregate their data
         if (isYearMode && state.data.medalsByCountryAndSportAndYear) {
-            // Use year-filtered sport data
             const filtered = state.data.medalsByCountryAndSportAndYear
-                .filter(d => d.noc === state.selectedCountry &&
+                .filter(d => state.selectedCountries.includes(d.noc) &&
                     d.year >= state.yearRange[0] &&
                     d.year <= state.yearRange[1]);
 
-            // Aggregate by sport
             const sportTotals = {};
             filtered.forEach(d => {
                 if (!sportTotals[d.sport]) {
@@ -446,22 +441,9 @@ function updateBarChart() {
                 .sort((a, b) => b.total - a.total)
                 .slice(0, 10);
         } else {
-            // All-time: use existing data
-            data = state.data.medalsByCountryAndSport
-                .filter(d => d.noc === state.selectedCountry)
-                .sort((a, b) => b.total - a.total)
-                .slice(0, 10);
-        }
+            const filtered = state.data.medalsByCountryAndSport
+                .filter(d => state.selectedCountries.includes(d.noc));
 
-        document.getElementById('bar-description').textContent =
-            `Top sports for ${getCountryName(state.selectedCountry)}${modeLabel}`;
-    } else {
-        // Global sports breakdown
-        if (isYearMode && state.data.medalsByCountryAndSportAndYear) {
-            // Aggregate all countries' sport data within year range
-            const filtered = state.data.medalsByCountryAndSportAndYear
-                .filter(d => d.year >= state.yearRange[0] && d.year <= state.yearRange[1]);
-            
             const sportTotals = {};
             filtered.forEach(d => {
                 if (!sportTotals[d.sport]) {
@@ -472,7 +454,35 @@ function updateBarChart() {
                 sportTotals[d.sport].bronze += d.bronze;
                 sportTotals[d.sport].total += d.total;
             });
-            
+
+            data = Object.values(sportTotals)
+                .sort((a, b) => b.total - a.total)
+                .slice(0, 10);
+        }
+
+        const countryNames = state.selectedCountries.length <= 3
+            ? state.selectedCountries.map(noc => getCountryName(noc)).join(', ')
+            : `${state.selectedCountries.length} countries`;
+        document.getElementById('bar-description').textContent =
+            `Top sports: ${countryNames}${modeLabel}`;
+    } else {
+        // Global sports breakdown
+        if (isYearMode && state.data.medalsByCountryAndSportAndYear) {
+            // Aggregate all countries' sport data within year range
+            const filtered = state.data.medalsByCountryAndSportAndYear
+                .filter(d => d.year >= state.yearRange[0] && d.year <= state.yearRange[1]);
+
+            const sportTotals = {};
+            filtered.forEach(d => {
+                if (!sportTotals[d.sport]) {
+                    sportTotals[d.sport] = { sport: d.sport, gold: 0, silver: 0, bronze: 0, total: 0 };
+                }
+                sportTotals[d.sport].gold += d.gold;
+                sportTotals[d.sport].silver += d.silver;
+                sportTotals[d.sport].bronze += d.bronze;
+                sportTotals[d.sport].total += d.total;
+            });
+
             data = Object.values(sportTotals)
                 .sort((a, b) => b.total - a.total)
                 .slice(0, 10);
@@ -667,48 +677,45 @@ function hideTooltip() {
 // Interaction Handlers
 // ===================================
 function handleCountryClick(d) {
-    if (state.selectedCountry === d.noc) {
-        state.selectedCountry = null;
+    const index = state.selectedCountries.indexOf(d.noc);
+    if (index > -1) {
+        // Already selected - remove it
+        state.selectedCountries.splice(index, 1);
     } else {
-        state.selectedCountry = d.noc;
+        // Add to selection
+        state.selectedCountries.push(d.noc);
     }
 
     updateVisualizations();
-    updateInfoPanel(state.selectedCountry ? d : null);
+    updateInfoPanel();
 }
 
-function updateInfoPanel(countryData) {
+function updateInfoPanel() {
     const nameEl = document.getElementById('selected-country-name');
     const statsEl = document.getElementById('medal-stats');
 
-    if (countryData) {
-        nameEl.textContent = `${countryData.name} (${countryData.noc})`;
+    if (state.selectedCountries.length > 0) {
+        // Get filtered data for all selected countries
+        const filteredData = getFilteredCountryData();
+        let gold = 0, silver = 0, bronze = 0;
 
-        let gold, silver, bronze;
-
-        if (state.dataMode === 'year-range') {
-            // Use year-filtered data
-            const filteredData = getFilteredCountryData();
-            const filtered = filteredData.find(d => d.noc === countryData.noc);
-            if (filtered) {
-                gold = filtered.gold || 0;
-                silver = filtered.silver || 0;
-                bronze = filtered.bronze || 0;
-            } else {
-                gold = silver = bronze = 0;
+        state.selectedCountries.forEach(noc => {
+            const countryData = filteredData.find(d => d.noc === noc);
+            if (countryData) {
+                gold += countryData.gold || 0;
+                silver += countryData.silver || 0;
+                bronze += countryData.bronze || 0;
             }
+        });
+
+        // Display selected countries
+        if (state.selectedCountries.length === 1) {
+            const noc = state.selectedCountries[0];
+            nameEl.textContent = `${getCountryName(noc)} (${noc})`;
+        } else if (state.selectedCountries.length <= 3) {
+            nameEl.textContent = state.selectedCountries.map(noc => getCountryName(noc)).join(' + ');
         } else {
-            // All-time data
-            const allTimeData = state.data.medalsByCountry.find(d => d.noc === countryData.noc);
-            if (allTimeData) {
-                gold = allTimeData.gold;
-                silver = allTimeData.silver;
-                bronze = allTimeData.bronze;
-            } else {
-                gold = countryData.gold || 0;
-                silver = countryData.silver || 0;
-                bronze = countryData.bronze || 0;
-            }
+            nameEl.textContent = `${state.selectedCountries.length} countries selected`;
         }
 
         document.getElementById('gold-count').textContent = gold;
@@ -716,7 +723,7 @@ function updateInfoPanel(countryData) {
         document.getElementById('bronze-count').textContent = bronze;
         statsEl.style.display = 'flex';
     } else {
-        nameEl.textContent = 'Click a country to see details';
+        nameEl.textContent = 'Click countries to compare (multi-select)';
         statsEl.style.display = 'none';
     }
 }
