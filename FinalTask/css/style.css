@@ -94,12 +94,143 @@ body::before {
    =================================== */
 
 .container {
-    max-width: 1600px;
+    max-width: 1920px;
     margin: 0 auto;
-    padding: var(--spacing-md);
+    padding: var(--spacing-sm);
     display: grid;
     grid-template-columns: 1fr;
-    gap: var(--spacing-md);
+    gap: var(--spacing-sm);
+}
+
+/* Horizontal Layout for MacBook */
+.horizontal-layout {
+    max-width: 100%;
+    padding: var(--spacing-sm);
+}
+
+.viz-grid-horizontal {
+    display: grid;
+    grid-template-columns: 1fr 1fr 350px;
+    gap: var(--spacing-sm);
+    min-height: 400px;
+}
+
+@media (max-width: 1400px) {
+    .viz-grid-horizontal {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+@media (max-width: 1000px) {
+    .viz-grid-horizontal {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Compact Header */
+.header.compact {
+    padding: var(--spacing-sm);
+}
+
+.header.compact h1 {
+    font-size: 1.5rem;
+}
+
+/* Compact Controls */
+.controls-panel.compact {
+    padding: var(--spacing-sm);
+}
+
+/* Country Cards in Selection Panel */
+.country-cards-container {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    overflow-y: auto;
+    max-height: 350px;
+    padding: var(--spacing-xs);
+}
+
+.country-card {
+    background: rgba(0, 0, 0, 0.02);
+    border: 1px solid rgba(0, 0, 0, 0.08);
+    border-radius: var(--radius-sm);
+    padding: var(--spacing-sm);
+}
+
+.country-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-xs);
+}
+
+.country-card-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-primary);
+}
+
+.country-card-remove {
+    background: none;
+    border: none;
+    color: var(--text-muted);
+    cursor: pointer;
+    font-size: 1rem;
+    padding: 2px 6px;
+    border-radius: 4px;
+}
+
+.country-card-remove:hover {
+    background: rgba(239, 68, 68, 0.1);
+    color: #ef4444;
+}
+
+.country-card-medals {
+    display: flex;
+    gap: var(--spacing-xs);
+}
+
+.country-card-medal {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.85rem;
+}
+
+.medal-icon {
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+}
+
+.medal-icon.gold {
+    background: var(--gold);
+}
+
+.medal-icon.silver {
+    background: var(--silver);
+}
+
+.medal-icon.bronze {
+    background: var(--bronze);
+}
+
+.no-selection-message {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    text-align: center;
+    padding: var(--spacing-md);
+}
+
+/* Compact Footer */
+.footer.compact {
+    padding: var(--spacing-sm);
+}
+
+.footer.compact p {
+    font-size: 0.8rem;
+    margin: 0;
 }
 
 /* ===================================

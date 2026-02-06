@@ -850,41 +850,50 @@ function handleCountryClick(d) {
 }
 
 function updateInfoPanel() {
-    const nameEl = document.getElementById('selected-country-name');
-    const statsEl = document.getElementById('medal-stats');
+    const container = document.getElementById('country-cards');
+    if (!container) return;
 
-    if (state.selectedCountries.length > 0) {
-        // Get filtered data for all selected countries
-        const filteredData = getFilteredCountryData();
-        let gold = 0, silver = 0, bronze = 0;
+    container.innerHTML = '';
 
-        state.selectedCountries.forEach(noc => {
-            const countryData = filteredData.find(d => d.noc === noc);
-            if (countryData) {
-                gold += countryData.gold || 0;
-                silver += countryData.silver || 0;
-                bronze += countryData.bronze || 0;
-            }
+    if (state.selectedCountries.length === 0) {
+        container.innerHTML = '<p class="no-selection-message">Click countries in the scatter plot to add them here</p>';
+        return;
+    }
+
+    const filteredData = getFilteredCountryData();
+
+    // Create independent card for each selected country
+    state.selectedCountries.forEach(noc => {
+        const countryData = filteredData.find(d => d.noc === noc);
+        const gold = countryData?.gold || 0;
+        const silver = countryData?.silver || 0;
+        const bronze = countryData?.bronze || 0;
+
+        const card = document.createElement('div');
+        card.className = 'country-card';
+        card.innerHTML = `
+            <div class="country-card-header">
+                <span class="country-card-name">${getCountryName(noc)} (${noc})</span>
+                <button class="country-card-remove" data-noc="${noc}" title="Remove">✕</button>
+            </div>
+            <div class="country-card-medals">
+                <span class="country-card-medal"><span class="medal-icon gold"></span>${gold}</span>
+                <span class="country-card-medal"><span class="medal-icon silver"></span>${silver}</span>
+                <span class="country-card-medal"><span class="medal-icon bronze"></span>${bronze}</span>
+                <span class="country-card-medal" style="font-weight: 600;">= ${gold + silver + bronze}</span>
+            </div>
+        `;
+
+        // Add remove button handler
+        card.querySelector('.country-card-remove').addEventListener('click', (e) => {
+            const nocToRemove = e.target.dataset.noc;
+            state.selectedCountries = state.selectedCountries.filter(n => n !== nocToRemove);
+            updateVisualizations();
+            updateInfoPanel();
         });
 
-        // Display selected countries
-        if (state.selectedCountries.length === 1) {
-            const noc = state.selectedCountries[0];
-            nameEl.textContent = `${getCountryName(noc)} (${noc})`;
-        } else if (state.selectedCountries.length <= 3) {
-            nameEl.textContent = state.selectedCountries.map(noc => getCountryName(noc)).join(' + ');
-        } else {
-            nameEl.textContent = `${state.selectedCountries.length} countries selected`;
-        }
-
-        document.getElementById('gold-count').textContent = gold;
-        document.getElementById('silver-count').textContent = silver;
-        document.getElementById('bronze-count').textContent = bronze;
-        statsEl.style.display = 'flex';
-    } else {
-        nameEl.textContent = 'Click countries to compare (multi-select)';
-        statsEl.style.display = 'none';
-    }
+        container.appendChild(card);
+    });
 }
 
 function updateVisualizations() {

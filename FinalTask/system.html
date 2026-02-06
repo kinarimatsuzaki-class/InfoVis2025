@@ -14,22 +14,22 @@
 </head>
 
 <body>
-    <div class="container">
+    <div class="container horizontal-layout">
         <!-- Header -->
-        <header class="header">
+        <header class="header compact">
             <div class="header-content">
                 <div class="logo">
                     <span class="logo-icon">🏅</span>
                     <h1>Olympic Medal Explorer</h1>
                 </div>
-                <p class="subtitle">Exploring 120 Years of Olympic History (1896-2016)</p>
+                <p class="subtitle">120 Years of Olympic History (1896-2016) | 119 Countries</p>
             </div>
         </header>
 
-        <!-- Controls Panel -->
-        <section class="controls-panel">
+        <!-- Controls Panel - Compact horizontal -->
+        <section class="controls-panel compact">
             <div class="control-group year-range-group">
-                <label>Year Range <span class="filter-hint">(for scatter plot)</span></label>
+                <label>Year Range</label>
                 <div class="year-display" id="year-display">1896 — 2016</div>
                 <div class="dual-range-slider">
                     <input type="range" id="year-min" min="1896" max="2016" value="1896" step="4" class="range-min">
@@ -57,108 +57,73 @@
                     <option value="bronze">Bronze Only</option>
                 </select>
             </div>
-            <button id="reset-btn" class="reset-btn">Reset Selection</button>
+            <div class="control-group">
+                <label>Data Mode</label>
+                <div class="data-mode-tabs" id="global-mode-tabs">
+                    <button class="mode-tab active" data-mode="all-time">📊 All-time</button>
+                    <button class="mode-tab" data-mode="year-range">📅 Year Range</button>
+                </div>
+            </div>
+            <button id="reset-btn" class="reset-btn">Reset All</button>
         </section>
 
-        <!-- Visualization Container -->
-        <main class="viz-container">
-            <!-- View 1: Scatter Plot -->
+        <!-- Main Visualization Area - Horizontal 3-column -->
+        <main class="viz-grid-horizontal">
+            <!-- Left: Scatter Plot -->
             <section class="viz-panel" id="scatter-panel">
                 <div class="panel-header">
-                    <h2>Country Medal Performance</h2>
-                    <p class="panel-description">Click a country to see its sports breakdown</p>
+                    <h2>Country Overview</h2>
+                    <p class="panel-description">Click countries to compare (multi-select)</p>
                 </div>
                 <div class="chart-container" id="scatter-chart"></div>
                 <div class="legend" id="scatter-legend"></div>
             </section>
 
-            <!-- View 2: Bar Chart -->
+            <!-- Center: Bar Chart (Sports breakdown) -->
             <section class="viz-panel" id="bar-panel">
                 <div class="panel-header">
-                    <h2>Sports Medal Breakdown</h2>
-                    <p class="panel-description" id="bar-description">Top 10 Olympic sports by total medals</p>
-                    <div class="data-mode-tabs" id="bar-mode-tabs">
-                        <button class="mode-tab active" data-mode="all-time">📊 All-time</button>
-                        <button class="mode-tab" data-mode="year-range">📅 Year Range</button>
-                    </div>
+                    <h2>Sports Breakdown</h2>
+                    <p class="panel-description" id="bar-description">Top 10 Olympic sports</p>
                 </div>
                 <div class="chart-container" id="bar-chart"></div>
-                <div class="legend" id="bar-legend">
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #FFD700;"></span>
-                        <span>Gold</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #C0C0C0;"></span>
-                        <span>Silver</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #CD7F32;"></span>
-                        <span>Bronze</span>
-                    </div>
+                <div class="legend bar-legend">
+                    <div class="legend-item"><span class="legend-color"
+                            style="background: #eab308;"></span><span>Gold</span></div>
+                    <div class="legend-item"><span class="legend-color"
+                            style="background: #9ca3af;"></span><span>Silver</span></div>
+                    <div class="legend-item"><span class="legend-color"
+                            style="background: #d97706;"></span><span>Bronze</span></div>
                 </div>
+            </section>
+
+            <!-- Right: Selected Countries Display -->
+            <section class="viz-panel" id="selection-panel">
+                <div class="panel-header">
+                    <h2>Selected Countries</h2>
+                    <p class="panel-description">Independent display of each selection</p>
+                </div>
+                <div class="country-cards-container" id="country-cards"></div>
             </section>
         </main>
 
-        <!-- Info Panel -->
-        <aside class="info-panel">
-            <div class="info-card" id="selected-info">
-                <h3>Selected Country</h3>
-                <div class="data-mode-tabs" id="info-mode-tabs">
-                    <button class="mode-tab active" data-mode="all-time">📊 All-time</button>
-                    <button class="mode-tab" data-mode="year-range">📅 Year Range</button>
-                </div>
-                <p id="selected-country-name">Click a country to see details</p>
-                <div class="medal-stats" id="medal-stats" style="display: none;">
-                    <div class="stat-item gold">
-                        <span class="stat-value" id="gold-count">0</span>
-                        <span class="stat-label">Gold</span>
-                    </div>
-                    <div class="stat-item silver">
-                        <span class="stat-value" id="silver-count">0</span>
-                        <span class="stat-label">Silver</span>
-                    </div>
-                    <div class="stat-item bronze">
-                        <span class="stat-value" id="bronze-count">0</span>
-                        <span class="stat-label">Bronze</span>
-                    </div>
-                </div>
-            </div>
-        </aside>
-
-        <!-- Comparison Panel (View 3) - Juxtaposition for multi-country comparison -->
+        <!-- Comparison Chart (appears when 2+ selected) -->
         <section class="comparison-section" id="comparison-section" style="display: none;">
             <div class="viz-panel comparison-panel">
                 <div class="panel-header">
-                    <h2>Country Comparison</h2>
-                    <p class="panel-description" id="comparison-description">Select multiple countries to compare (click points in scatter plot)</p>
+                    <h2>Side-by-Side Comparison</h2>
+                    <p class="panel-description" id="comparison-description">Comparing selected countries</p>
                 </div>
                 <div class="chart-container" id="comparison-chart"></div>
-                <div class="legend" id="comparison-legend">
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #eab308;"></span>
-                        <span>Gold</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #9ca3af;"></span>
-                        <span>Silver</span>
-                    </div>
-                    <div class="legend-item">
-                        <span class="legend-color" style="background: #d97706;"></span>
-                        <span>Bronze</span>
-                    </div>
-                </div>
             </div>
         </section>
 
-        <!-- Footer -->
-        <footer class="footer">
+        <!-- Footer - Compact -->
+        <footer class="footer compact">
             <div class="credits">
-                <p><strong>Data Source:</strong> <a
+                <p><strong>Data:</strong> <a
                         href="https://www.kaggle.com/datasets/heesoo37/120-years-of-olympic-history-athletes-and-results"
-                        target="_blank">120 years of Olympic history (Kaggle, CC0)</a></p>
-                <p><strong>Reference:</strong> Munzner, T. (2014). Visualization Analysis and Design. CRC Press.</p>
-                <p><strong>Author:</strong> 松崎葵生 (251x068x) | InfoVis2025</p>
+                        target="_blank">Kaggle (CC0)</a> | <strong>Reference:</strong> Munzner (2014) Visualization
+                    Analysis and Design | <strong>Author:</strong> 松崎葵生 (251x068x)</p>
             </div>
         </footer>
     </div>
